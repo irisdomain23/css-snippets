@@ -1,0 +1,123 @@
+/* dark-mode.css — a dark mode that follows the system by default and lets
+   the user override it, without a flash on first paint.
+
+   Order matters here:
+   1. color-scheme so form controls, scrollbars, and the canvas follow along
+   2. tokens for light
+   3. tokens for dark, behind the media query
+   4. the same dark tokens behind an explicit [data-theme] override */
+
+:root {
+  color-scheme: light dark;
+
+  --surface: #ffffff;
+  --surface-raised: #f6f7f9;
+  --text: #16181d;
+  --text-muted: #5b616e;
+  --border: #dcdfe5;
+  --accent: #1d4ed8;
+  --accent-text: #ffffff;
+
+  /* Shadows have to be re-tuned, not reused: a black shadow is invisible on
+     a dark surface. Dark mode gets a lighter, tighter one. */
+  --shadow: 0 1px 2px rgb(16 18 22 / 0.08), 0 8px 24px rgb(16 18 22 / 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #101216;
+    --surface-raised: #181b21;
+    --text: #e8eaee;
+    --text-muted: #a3a9b5;
+    --border: #333844;
+    --accent: #7aa2f7;
+    --accent-text: #0d0f13;
+    --shadow: 0 1px 1px rgb(0 0 0 / 0.5), 0 4px 12px rgb(0 0 0 / 0.4);
+  }
+}
+
+/* Explicit user choice wins over the system. Set data-theme on <html> from a
+   tiny inline script in <head> so it lands before first paint. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --surface: #101216;
+  --surface-raised: #181b21;
+  --text: #e8eaee;
+  --text-muted: #a3a9b5;
+  --border: #333844;
+  --accent: #7aa2f7;
+  --accent-text: #0d0f13;
+  --shadow: 0 1px 1px rgb(0 0 0 / 0.5), 0 4px 12px rgb(0 0 0 / 0.4);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+body {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* ---------------------------------------------------------------------------
+   Elevation. In light mode a raised surface casts a shadow; in dark mode it
+   gets lighter instead. Doing both looks like mud.
+--------------------------------------------------------------------------- */
+.card {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+/* ---------------------------------------------------------------------------
+   Images. Pure white photos and logos glare on a dark background; a small
+   brightness cut is enough. Never apply this to product photography.
+--------------------------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  .dim-on-dark {
+    filter: brightness(0.88) contrast(1.05);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Theme-aware SVG: fill with currentColor and it follows the text token.
+--------------------------------------------------------------------------- */
+.icon {
+  fill: currentColor;
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+/* ---------------------------------------------------------------------------
+   Do not animate the theme swap on load. Add .theming for the length of the
+   toggle only, or the whole page cross-fades on every navigation.
+--------------------------------------------------------------------------- */
+.theming,
+.theming * {
+  transition: background-color 150ms ease, color 150ms ease,
+    border-color 150ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theming,
+  .theming * {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Windows high contrast mode ignores your colours entirely. Check that
+   anything drawn with a background or a shadow still has a real border.
+--------------------------------------------------------------------------- */
+@media (forced-colors: active) {
+  .card {
+    border: 1px solid CanvasText;
+  }
+
+  :focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+}
