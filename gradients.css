@@ -1,0 +1,134 @@
+/* gradients.css — gradients that hold up on a real screen.
+   The recurring problem is the grey dead zone: sRGB interpolation walks
+   through desaturated middles. Fixing it is usually a colour space, not
+   more colour stops. */
+
+/* ---------------------------------------------------------------------------
+   Two-stop gradient, interpolated in Oklab. No muddy midpoint.
+   Falls back to plain sRGB where in/oklab is unsupported.
+--------------------------------------------------------------------------- */
+.gradient-clean {
+  background-image: linear-gradient(
+    to right,
+    var(--from, #2563eb),
+    var(--to, #db2777)
+  );
+  background-image: linear-gradient(
+    to right in oklab,
+    var(--from, #2563eb),
+    var(--to, #db2777)
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   Fade to transparent without the grey ghost.
+   `transparent` is rgba(0 0 0 / 0) — black at zero alpha — so it drags the
+   ramp toward black. Fade to the same colour at zero alpha instead.
+--------------------------------------------------------------------------- */
+.scrim {
+  background-image: linear-gradient(
+    to top,
+    rgb(0 0 0 / 0.75),
+    rgb(0 0 0 / 0) 60%
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   Text gradient. Needs a solid fallback colour first: if the clip fails,
+   the text stays readable rather than invisible.
+--------------------------------------------------------------------------- */
+.gradient-text {
+  color: var(--from, #2563eb);
+  background-image: linear-gradient(
+    120deg in oklab,
+    var(--from, #2563eb),
+    var(--to, #7c3aed)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@supports not (background-clip: text) {
+  .gradient-text {
+    color: var(--from, #2563eb);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Gradient border, one element, radius intact.
+   border-image cannot do rounded corners; two backgrounds can.
+--------------------------------------------------------------------------- */
+.gradient-border {
+  --border-width: 1px;
+  border: var(--border-width) solid transparent;
+  border-radius: 10px;
+  background-image:
+    linear-gradient(var(--surface, #ffffff), var(--surface, #ffffff)),
+    linear-gradient(135deg in oklab, #2563eb, #db2777);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+/* ---------------------------------------------------------------------------
+   Mesh-ish background from three radial gradients. Cheap, no image request.
+--------------------------------------------------------------------------- */
+.mesh {
+  background-color: #0d0f13;
+  background-image:
+    radial-gradient(at 15% 20%, rgb(37 99 235 / 0.45) 0px, transparent 55%),
+    radial-gradient(at 85% 10%, rgb(219 39 119 / 0.35) 0px, transparent 50%),
+    radial-gradient(at 60% 90%, rgb(20 184 166 / 0.35) 0px, transparent 55%);
+}
+
+/* ---------------------------------------------------------------------------
+   Banding fix. Wide, low-contrast gradients band on 8-bit panels; a faint
+   noise layer breaks up the steps. The SVG is inline, so no extra request.
+--------------------------------------------------------------------------- */
+.gradient-dithered {
+  position: relative;
+  background-image: linear-gradient(160deg in oklab, #1e293b, #0f172a);
+  isolation: isolate;
+}
+
+.gradient-dithered::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.035;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------------------------------------------------------------------------
+   Animated gradient. background-position animates on the compositor badly;
+   animating a registered custom property is smoother and interruptible.
+--------------------------------------------------------------------------- */
+@property --gradient-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.gradient-spin {
+  background-image: linear-gradient(
+    var(--gradient-angle) in oklab,
+    #2563eb,
+    #db2777,
+    #2563eb
+  );
+  animation: gradient-spin 8s linear infinite;
+}
+
+@keyframes gradient-spin {
+  to {
+    --gradient-angle: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gradient-spin {
+    animation: none;
+  }
+}
