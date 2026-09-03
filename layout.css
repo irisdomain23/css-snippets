@@ -1,0 +1,116 @@
+/* layout.css — layout primitives that do not need a media query.
+   Every class here is standalone; copy the one you need. */
+
+/* ---------------------------------------------------------------------------
+   Stack — vertical rhythm applied by the parent, not by the children.
+   Children keep their margins for print and for RSS readers.
+--------------------------------------------------------------------------- */
+.stack {
+  display: grid;
+  gap: var(--stack-gap, 1rem);
+  align-content: start;
+}
+
+/* ---------------------------------------------------------------------------
+   Auto grid — as many columns as fit, no breakpoints.
+   auto-fit collapses empty tracks, so a single card stretches full width;
+   swap to auto-fill if you want the empty tracks kept.
+--------------------------------------------------------------------------- */
+.auto-grid {
+  display: grid;
+  gap: var(--grid-gap, 1.5rem);
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(var(--grid-min, 18rem), 100%), 1fr)
+  );
+}
+
+/* The min() is doing real work: without it, a 18rem minimum overflows a
+   320px viewport instead of wrapping. */
+
+/* ---------------------------------------------------------------------------
+   Sidebar — sidebar and main sit side by side until main would get too narrow,
+   then they wrap. No container query, no JS.
+--------------------------------------------------------------------------- */
+.with-sidebar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sidebar-gap, 2rem);
+}
+
+.with-sidebar > :first-child {
+  flex-basis: var(--sidebar-width, 16rem);
+  flex-grow: 1;
+}
+
+.with-sidebar > :last-child {
+  flex-basis: 0;
+  flex-grow: 999; /* Wins all leftover space until the wrap point. */
+  min-inline-size: var(--main-min, 50%);
+}
+
+/* ---------------------------------------------------------------------------
+   Centred content column with full-bleed escapes.
+   Children default to the readable column; .bleed breaks out to the edges.
+--------------------------------------------------------------------------- */
+.prose {
+  display: grid;
+  grid-template-columns:
+    1fr
+    min(var(--measure, 65ch), 100% - var(--gutter, 2rem) * 2)
+    1fr;
+}
+
+.prose > * {
+  grid-column: 2;
+}
+
+.prose > .bleed {
+  grid-column: 1 / -1;
+  inline-size: 100%;
+}
+
+/* ---------------------------------------------------------------------------
+   Sticky footer without a wrapper div.
+--------------------------------------------------------------------------- */
+body.app-shell {
+  min-block-size: 100svh; /* svh, not vh: mobile browser chrome. */
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+/* ---------------------------------------------------------------------------
+   Cluster — inline items that wrap, without the negative-margin hack.
+--------------------------------------------------------------------------- */
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cluster-gap, 0.75rem);
+  align-items: center;
+}
+
+/* ---------------------------------------------------------------------------
+   Aspect-ratio media box. object-fit stops the squash when the intrinsic
+   ratio disagrees.
+--------------------------------------------------------------------------- */
+.frame {
+  aspect-ratio: var(--frame-ratio, 16 / 9);
+  overflow: hidden;
+}
+
+.frame > img,
+.frame > video {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+/* ---------------------------------------------------------------------------
+   Scroll area that does not shift the page when the scrollbar appears,
+   and does not chain its scroll to the body.
+--------------------------------------------------------------------------- */
+.scroll-area {
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
