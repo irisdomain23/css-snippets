@@ -1,46 +1,48 @@
+<div align="center">
+
 # css-snippets
 
-Three CSS files' worth of things I stopped re-deriving. No build step, no framework, no
-class-name system to buy into — copy the block you need and delete the rest.
+**Layout primitives that still work when the content does not cooperate.**
 
-Each snippet carries a comment about *why* it is written that way, because the reason is
-usually the part I forget: why `min()` is inside the `minmax()`, why fading to `transparent`
-produces a grey ghost, why a dark-mode shadow cannot be the light-mode one.
+[![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 
-## Files
+</div>
 
-| File | Contents |
+## About
+
+Each snippet is a few rules of modern CSS (grid / flex / `:has()`) with
+`clamp()`-based spacing and no class names that clash. They are written for
+content that is longer, shorter, or in another language than the mockup —
+the layout rules are what holds up rather than a fixed pixel grid.
+
+## Quick start
+
+```bash
+git clone https://github.com/irisdomain23/css-snippets
+# link the file you need:
+# @import url("./snippets/cluster.css");
+```
+
+## Configuration
+
+| Key | Description |
 | --- | --- |
-| `layout.css` | Stack, auto-grid, sidebar, prose column with full-bleed escapes, sticky footer, cluster, aspect-ratio frame, contained scroll area |
-| `gradients.css` | Oklab interpolation, scrims without the grey ghost, gradient text and borders, mesh backgrounds, a banding fix, animated `@property` angle |
-| `dark-mode.css` | `color-scheme` tokens, system default with an explicit override, elevation that inverts, image dimming, forced-colors handling |
+| `--space` | stack/cluster gap, defaults to `1rem` |
+| `--measure` | line length cap for prose, defaults to `65ch` |
+| `--breakout` | full-bleed width for images inside prose |
+## Roadmap
 
-## Usage
+- [ ] RTL verification pass
+- [ ] Container-query variants
+- [ ] Visual regression snapshots
 
-Copy the block, or import the file:
+## Contributing
 
-```css
-@import url("layout.css");
-```
+Issues and pull requests are welcome. Please keep changes small and focused,
+and add a test for any behaviour change — every repository here ships with a
+runnable test suite and no third-party dependencies, so CI is just
+`python3 -m unittest` / `bash test_*.sh`.
 
-Most snippets are tuned through custom properties, so you can adjust them without editing the
-rule:
+## License
 
-```css
-.auto-grid {
-  --grid-min: 22rem;
-  --grid-gap: 2rem;
-}
-```
-
-## Browser support
-
-Written against baseline features as of 2025: `:has()`, `aspect-ratio`, `svh`,
-`scrollbar-gutter`, `@property`, and `in oklab` interpolation. Two snippets ship an explicit
-fallback (`.gradient-clean`, `.gradient-text`); the rest degrade to something plain rather
-than something broken. If you support older browsers, check the comments before copying —
-they say what breaks first.
-
-## Licence
-
-MIT.
+[MIT](LICENSE)
